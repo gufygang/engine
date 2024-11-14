@@ -415,8 +415,8 @@ end;
 procedure TTelegramHandler.Post;
 var
   updateID, lastUpdateID: longint;
-  i, j, spamScoreTotal: integer;
-  s, imgTag, audioCaption, voiceFileName, mp3FileName, tmpStr, fileType, fileCaption, url: string;
+  i, j, spamScoreTotal, memberCount, deltaMember: integer;
+  s, key, imgTag, audioCaption, voiceFileName, mp3FileName, tmpStr, fileType, fileCaption, url: string;
   disableMarkdown, isHandled, localReplyDisable, canSendMessage, isEditMessage: boolean;
   forceSendMessage, forceReply: boolean;
   replyText: TStringList;
@@ -479,6 +479,32 @@ begin
   SimpleBOT.SessionUserID := UniqueID;
   SimpleBOT.FirstSessionResponse := s2b(Config[TELEGRAM_BOT_FIRST_SESSION_RESPONSE]);
 
+
+  // get member count
+  deltaMember := 0;
+  if TELEGRAM.IsGroup then
+  begin
+    memberCount := TELEGRAM.GroupMemberCount(TELEGRAM.ChatID);
+    if memberCount > TELEGRAM_GROUP_MAXIMUM_MEMBER_COUNT then
+    begin
+      key := BotName + '_group_' + TELEGRAM.ChatID + '_count';
+      s := SimpleBOT.Redis[key];
+      LogUtil.Add(TELEGRAM.GroupName + '; member dari db: ' + s, '#MEMBER');
+      if s2i(s) <= 0 then
+      begin
+        LogUtil.Add(TELEGRAM.GroupName + '; set db: ' + memberCount.ToString, '#MEMBER');
+      end
+      else
+      begin
+        deltaMember := memberCount - s2i(s);
+        if deltaMember > 0 then
+           LogUtil.Add(TELEGRAM.GroupName + ' member: ADD: ' + memberCount.ToString + ' ('+deltaMember.ToString+')', '#MEMBER')
+        else
+           LogUtil.Add(TELEGRAM.GroupName + ' member: ' + memberCount.ToString + ' ('+deltaMember.ToString+')', '#MEMBER');
+      end;
+      SimpleBOT.Redis[key] := memberCount.ToString;
+    end;
+  end;
 
   if IsGlobalUserBlackListed(Carik.UserPrefix + '-' + Carik.UserID) then
   begin
@@ -737,7 +763,7 @@ begin
             LogJoin(TELEGRAM_CHANNEL_ID, TELEGRAM.ChatID, TELEGRAM.GroupName, TELEGRAM.InvitedUserId, TELEGRAM.InvitedUserName, TELEGRAM.InvitedFullName, TELEGRAM.InvitedBy, RestrictUser);
             LogUtil.Add(Request.Content.Replace(#13,'').Replace(#10,''), 'JOIN');
           end;
-          exit; delete
+          //ULIL: exit;
         end
         else
         begin
@@ -1342,6 +1368,15 @@ begin
     //LogChat(TELEGRAM_CHANNEL_ID, Carik.GroupChatID, Carik.GroupName,
     //  '-1', TELEGRAM.ResultMessageID, SimpleBOT.SimpleAI.ResponseText.Text, '',
     //  Carik.IsGroup, False);
+    if deltaMember > 0 then
+    begin
+      s := 'Group ini sepertinya kedatangan %s member baru.\nCoba colek admin untuk checking.';
+      s += '\n(' + TELEGRAM.AdminListAsString + ')';
+      s := s.Replace('%s', deltaMember.ToString);
+      TELEGRAM.SendMessage(TELEGRAM.ChatID, s);
+      LogUtil.Add('send notif ke ' + TELEGRAM.GroupName + ', baru: ' + deltaMember.ToString, '#MEMBER');
+      //TELEGRAM.SendMessage(TELEGRAM.ChatID, s, MessageID, currentThreadIdAsString);
+    end;
   end;
 
   s := Text;

@@ -76,6 +76,7 @@ const
   LINE_TOKEN = 'line/default/token';
   LINE_BOT_REPLY_DISABLE = 'line/default/reply_disable';
   LINE_BOT_FIRST_SESSION_RESPONSE = 'line/default/first_session_response';
+  TELEGRAM_GROUP_MAXIMUM_MEMBER_COUNT = 1500;
 
   WITAI_TOKEN = 'witai/default/token';
   GOOGLE_KEY = 'google/default/key';

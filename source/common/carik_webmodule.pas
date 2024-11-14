@@ -3209,6 +3209,7 @@ var
   i, j, additionScore: integer;
   s, triggerName, triggerWord: string;
   jData: TJSONData;
+  lstURL: TStringList;
 begin
   Result := 0;
   AText := AText.ToLower;
@@ -3247,6 +3248,7 @@ begin
       triggerWord := jData.Items[i].Items[j].AsString;
       if preg_match(triggerWord, AText) then
       begin
+        LogUtil.Add(triggerName + '/' + triggerWord, 'SPAM-CHECK');
         Result := Result + additionScore;
       end;
     end;
@@ -3255,7 +3257,20 @@ begin
 
   if Result < 80 then
   begin
+    // check blacklisted URL
+    lstURL := TStringList.Create;
+    lstURL.LoadFromFile('files/blacklist-url.txt');
+    for i := 0 to lstURL.Count -1 do
+    begin
+      if Pos( LowerCase(lstURL[i]), AText) > 0 then
+      begin
+        Result := Result + 10;
+      end;
+    end;
+    lstURL.Free
+
     //TODO: check from spam-score api;
+
   end;
 
   if Result >= SPAM_SCORE_THRESHOLD then
