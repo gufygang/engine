@@ -139,10 +139,12 @@ const
 
   NEW_MEMBER_INTERVAL_POST_PERMITTED = 20;
   SPAM_SCORE_THRESHOLD = 80;
+  SPAM_SCORE_FORWARD_STORY = 80;
   SPAM_WORD = 'ai/default/spam_word';
   SPAM_CAS_OFFENSE = 1; // api.cas.chat
 
   GROUP_DATA_FILENAME = 'files/carik/carik-groupdata.dat';
+  BLACKLIST_URL_FILENAME = 'files/blacklist-url.txt';
   CALLBACK_QUERY_TIMEOUT = 5; // 5 minutes
   CALLBACK_QUERY_TIMEOUT_PREFIX = 30; // 5 minutes
   MESSAGE_TYPE = 'message_type';

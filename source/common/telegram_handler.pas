@@ -817,6 +817,14 @@ begin
                 begin
                   spamScoreTotal := SPAM_SCORE_THRESHOLD;
                 end;
+                if TELEGRAM.IsForwardFromStory then
+                begin
+                  spamScoreTotal+= SPAM_SCORE_FORWARD_STORY;
+                  if isBlackListed( TELEGRAM.UserName, TELEGRAM.UserID) then
+                  begin
+                    spamScoreTotal+= SPAM_SCORE_THRESHOLD;
+                  end;
+                end;
                 if Carik.isSpamChecking or (spamScoreTotal>0) then
                 begin
                   //if s.IsNotEmpty then //TODO: fix function isSpamChecking

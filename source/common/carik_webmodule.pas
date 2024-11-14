@@ -3259,12 +3259,12 @@ begin
   begin
     // check blacklisted URL
     lstURL := TStringList.Create;
-    lstURL.LoadFromFile('files/blacklist-url.txt');
+    lstURL.LoadFromFile(BLACKLIST_URL_FILENAME);
     for i := 0 to lstURL.Count -1 do
     begin
       if Pos( LowerCase(lstURL[i]), AText) > 0 then
       begin
-        Result := Result + 10;
+        Result := Result + 30;
       end;
     end;
     lstURL.Free
